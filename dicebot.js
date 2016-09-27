@@ -46,6 +46,18 @@ module.exports = function (req, res, next) {
   botPayload.channel = req.body.channel_id;
   botPayload.icon_emoji = ':game_die:';
 
+  // send dice roll
+  send(botPayload, function (error, status, body) {
+    if (error) {
+      return next(error);
+    } else if (status !== 200) {
+      // inform user that our Incoming WebHook failed
+      return next(new Error('Incoming WebHook: ' + status + ' ' + body));
+    } else {
+      return res.status(200).end();
+    }
+  });
+
 }
 
 function roll (min, max) {
