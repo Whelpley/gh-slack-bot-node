@@ -2,6 +2,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var hellobot = require('./hellobot.js');
 var dicebot = require('./dicebot.js');
+var getHumanbot = require('./gethumanbot.js');
+
 
 var app = express();
 var port = process.env.PORT || 3000;
@@ -18,6 +20,9 @@ app.post('/hello', hellobot);
 
 // dicebot
 app.post('/roll', dicebot);
+
+// dicebot
+app.post('/gethuman', getHumanbot);
 
 
 // basic error handler
