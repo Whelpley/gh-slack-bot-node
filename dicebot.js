@@ -16,6 +16,7 @@ module.exports = function (req, res, next) {
     if (matches && matches[1] && matches[2]) {
       times = matches[1];
       die = matches[2];
+
     } else {
       // send error message back to user if input is bad
       return res.status(200).send('<number>d<sides>');
@@ -30,17 +31,8 @@ module.exports = function (req, res, next) {
   }
 
   // write response message and add to payload
-  botPayload.text =
-    req.body.user_name
-    + ' rolled '
-    + times
-    + 'd'
-    + die
-    + ':\n'
-    + rolls.join(' + ')
-    + ' = *'
-    + total
-    + '*';
+  botPayload.text = req.body.user_name + ' rolled ' + times + 'd' + die + ':\n' +
+                    rolls.join(' + ') + ' = *' + total + '*';
 
   botPayload.username = 'dicebot';
   botPayload.channel = req.body.channel_id;
@@ -50,24 +42,26 @@ module.exports = function (req, res, next) {
   send(botPayload, function (error, status, body) {
     if (error) {
       return next(error);
+
     } else if (status !== 200) {
       // inform user that our Incoming WebHook failed
       return next(new Error('Incoming WebHook: ' + status + ' ' + body));
+
     } else {
       return res.status(200).end();
     }
   });
-
 }
+
 
 function roll (min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+
 function send (payload, callback) {
   var path = process.env.INCOMING_WEBHOOK_PATH;
-  var uri = 'https://hooks.slack.com/services' + path;
-  console.log("Dicebot send process triggered");
+  var uri = 'https://hooks.slack.com/services/' + path;
 
   request({
     uri: uri,
@@ -80,5 +74,4 @@ function send (payload, callback) {
 
     callback(null, response.statusCode, body);
   });
-
 }
