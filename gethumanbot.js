@@ -1,63 +1,17 @@
 var request = require('request');
 
 module.exports = function (req, res, next) {
-  var userText = (req.body.text) ? req.body.text : '';
-
-  // write response message and add to payload
-  // invoke after all responses from API are complete ready
   var botPayload = {};
-  botPayload.text = req.body.user_name + ", here are some solutions to " + userText + ":";
-  botPayload.username = 'gethumanbot';
+  botPayload.username = 'Gethumanbot';
   botPayload.channel = req.body.channel_id;
-  botPayload.icon_emoji = ':stuck_out_tongue:';
-  botPayload.attachments = [
-        {
-            "fallback": "Required plain-text summary of the attachment.",
-            "title": "Verizon: I dropped my phone in the toilet",
-            "title_link": "https://api.slack.com/",
-            "text": "Step 1: Take it out \nStep 2: put it in the oven\nStep3: eat it\nStep 4: That should have worked",
-            "fields": [
-                {
-                    "title": "More info",
-                    "value": "<www.theonion.com|Detailed solutions>",
-                    "short": true
-                },
-                {
-                    "title": "Call them",
-                    "value": "<tel:+14156805629|Phone them now>",
-                    "short": true
-                },
-                {
-                    "title": "Solve - $20",
-                    "value": "<www.gethuman.com|Go to GetHuman>",
-                    "short": true
-                }
-            ]
-        },
-        {
-            "fallback": "Required plain-text summary of the attachment.",
-            "title": "Verizon: I dropped my phone in the toilet",
-            "title_link": "https://api.slack.com/",
-            "text": "Below is a link that will allow you to do your re-certification for Assurance Wireless: \nStep 1: https://www.assurancewireless.com/Secure/ReCertification/AnnualRecertification.aspx",
-            "fields": [
-                {
-                    "title": "More info",
-                    "value": "<www.theonion.com|Detailed solutions>",
-                    "short": true
-                },
-                {
-                    "title": "Call them",
-                    "value": "<tel:+14156805629|Phone them now>",
-                    "short": true
-                },
-                {
-                    "title": "Solve - $20",
-                    "value": "<www.gethuman.com|Go to GetHuman>",
-                    "short": true
-                }
-            ]
-        }
-  ]
+
+  var textInput = (req.body.text) ? req.body.text : '';
+  if (textInput) {
+      summonQuestionResponse(textInput);
+  } else {
+      botPayload.text = "Tell me your customer service issue.";
+      botPayload.icon_emoji = ':question:';
+  };
 
   // send payload
   send(botPayload, function (error, status, body) {
@@ -84,7 +38,140 @@ function send (payload, callback) {
     if (error) {
       return callback(error);
     }
-
     callback(null, response.statusCode, body);
   });
 }
+
+function summonQuestionResponse(text) {
+    var questions = [];
+    var companyIDs = [];
+    var guideIDs = [];
+    var companyObjects = [];
+    var companyTable = {};
+    var guideObjects = [];
+    var guideTable = {};
+
+    let filters = {
+        type: 'question',
+        isGuide: true
+    };
+    let limit = 5;
+    request('https://api.gethuman.co/v3/posts/search?match='
+            + encodeURIComponent(text)
+            + '&limit='
+            + limit
+            + '&filterBy='
+            + encodeURIComponent(JSON.stringify(filters))
+            , function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            questions = JSON.parse(body);
+            if (questions && questions.length) {
+                for (let i = 0; i < questions.length; i++) {
+                    companyIDs.push(questions[i].companyId);
+                    guideIDs.push(questions[i].guideId);
+                };
+                // console.log("Company ID's: " + companyIDs);
+                // console.log("Guide ID's: " + guideIDs);
+                request('https://api.gethuman.co/v3/companies?where='
+                    + encodeURIComponent(JSON.stringify({ _id: { $in: companyIDs }}))
+                    , function (error, response, body) {
+                    if (!error && response.statusCode == 200) {
+                        companyObjects = JSON.parse(body);
+                        for (let i = 0; i < companyObjects.length; i++) {
+                            companyTable[companyObjects[i]._id] = companyObjects[i]
+                        };
+                        // console.log("All company Objects returned from API: " + JSON.stringify(companyTable));
+                        request('https://api.gethuman.co/v3/guides?where='
+                            + encodeURIComponent(JSON.stringify({ _id: { $in: guideIDs }}))
+                            , function (error, response, body) {
+                            if (!error && response.statusCode == 200) {
+                                guideObjects = JSON.parse(body);
+                                for (let i = 0; i < guideObjects.length; i++) {
+                                    guideTable[guideObjects[i]._id] = guideObjects[i]
+                                };
+                                // console.log("All guide Objects returned from API: " + JSON.stringify(guideTable));
+                                // attach Companies and Guides to Questions
+                                for (var i = 0; i < questions.length; i++) {
+                                    let cID = questions[i].companyId;
+                                    questions[i].company = companyTable[cID];
+                                    let gID = questions[i].guideId;
+                                    questions[i].guide = guideTable[gID];
+                                };
+                                prepareQuestionsPayload(questions);
+                            } else if (error) {
+                            console.log(error);
+                          }
+                        });
+                    } else if (error) {
+                    console.log(error);
+                  }
+                });
+            } else {
+                // send back a plain text response for now
+                // later: potential company cards
+                botPayload.text = "We could not find any matching questions to your input.";
+                botPayload.icon_emoji = ':stuck_out_tongue:';
+            };
+        } else if (error) {
+            console.log(error);
+        }
+    })
+};
+
+function prepareQuestionsPayload(questions) {
+    botPayload.text = "Here are some issues potentially matching your input, and how to resolve them. Check them out!";
+    botPayload.icon_emoji = ':tada:';
+    botPayload.attachments = [];
+
+    for (let i = 0; i < questions.length; i++) {
+        let companyName = questions[i].companyName || '';
+        let urlId = questions[i].urlId || '';
+        let phone = (questions[i].company) ? questions[i].company.callback.phone : '';
+        //format phone# for international format
+        let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
+        let title = questions[i].title || '';
+        // check if company name is in title already, add to front if not
+        if (title.indexOf(companyName) < 0) {
+            title = companyName + ": " + title;
+        };
+        // this only gets the first in the series! Will likely need to iterate through the steps to harvest all the details
+        // also has potential for funky-not-fresh formatting wrt HTML tags
+        if (questions[i].guide.steps) {
+            console.log("Solutions for Question #" + i + ": " + questions[i].guide.steps);
+        } else {
+            console.log("No solutions found for Question #" + i);
+        };
+        let solution = questions[i].guide.steps[0].details || 'No solution found. Despair and wail!';
+
+        // create attachment object
+        let singleAttachment = {
+            "fallback": "Solution guide for " + companyName,
+            "title": title,
+            // redundant link to one in the Fields
+            // "title_link": "https://answers.gethuman.co/_" + encodeURIComponent(urlId),
+            "text": solution,
+            "fields": [
+                {
+                    "title": "More info",
+                    "value": "<https://answers.gethuman.co/_" + encodeURIComponent(urlId) + "|Detailed solutions guide>",
+                    "short": true
+                },
+                {
+                    "title": "Solve - $20",
+                    "value": "<https://gethuman.com?company=" + encodeURIComponent(companyName) + "|Summon GetHuman's Humans!>",
+                    "short": true
+                }
+            ]
+        };
+        // if there is a valid phone # (needs stricter checks), add Call field to attachment
+        if (phoneIntl) {
+            singleAttachment.fields.unshift({
+                "title": "Want to talk to " + companyName + " ?",
+                "value": "<tel:" + phoneIntl + "|Call them now>",
+                "short": true
+            })
+        };
+        // push attachment into payload
+        botPayload.attachments.push(singleAttachment);
+    };
+};
