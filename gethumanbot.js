@@ -150,8 +150,9 @@ function prepareQuestionsPayload(questions, botPayload, res) {
         } else {
             console.log("No solutions found for Question #" + i);
         };
-        // let solution = questions[i].guide.steps[0].details || 'No solution found. Despair and wail!';
-        let solution = "Step 1: Hit it with a hammer\nStep 2: Light it on fire\nStep 3: Order a pizza\nStep 4: Do a little dance."
+        let solution = questions[i].guide.steps[0].details || 'No solution found. Despair and wail!';
+        // dummy text for solutions:
+        // let solution = "Step 1: Hit it with a hammer\nStep 2: Light it on fire\nStep 3: Order a pizza\nStep 4: Do a little dance."
 
         // create attachment object
         let singleAttachment = {
