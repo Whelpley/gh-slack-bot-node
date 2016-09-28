@@ -12,7 +12,8 @@ module.exports = function (req, res, next) {
 
   var textInput = (req.body.text) ? req.body.text : '';
   if (textInput) {
-      summonQuestionResponse(textInput, botPayload);
+      // passing in 'res' for debugging
+      summonQuestionResponse(textInput, botPayload, res);
   } else {
       botPayload.text = "Tell me your customer service issue.";
       botPayload.icon_emoji = ':question:';
@@ -50,7 +51,7 @@ function send (payload, callback) {
   });
 }
 
-function summonQuestionResponse(textInput, botPayload) {
+function summonQuestionResponse(textInput, botPayload, res) {
     var questions = [];
     var companyIDs = [];
     var guideIDs = [];
@@ -105,7 +106,7 @@ function summonQuestionResponse(textInput, botPayload) {
                                     let gID = questions[i].guideId;
                                     questions[i].guide = guideTable[gID];
                                 };
-                                prepareQuestionsPayload(questions, botPayload);
+                                prepareQuestionsPayload(questions, botPayload, res);
                             } else if (error) {
                             console.log(error);
                           }
@@ -126,7 +127,7 @@ function summonQuestionResponse(textInput, botPayload) {
     })
 };
 
-function prepareQuestionsPayload(questions, botPayload) {
+function prepareQuestionsPayload(questions, botPayload, res) {
     botPayload.text = "Here are some issues potentially matching your input, and how to resolve them. Check them out!";
     botPayload.icon_emoji = ':tada:';
     botPayload.attachments = [];
@@ -195,7 +196,7 @@ function prepareQuestionsPayload(questions, botPayload) {
         return next(new Error('Incoming WebHook: ' + status + ' ' + body));
       } else {
         console.log("Payload sent on for much win.");
-        return response.status(200).end();
+        return res.status(200).end();
       }
     });
 };
