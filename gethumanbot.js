@@ -173,14 +173,13 @@ function prepareQuestionsPayload(questions, botPayload) {
             ]
         };
         // if there is a valid phone # (needs stricter checks), add Call field to attachment
-        // this may be invalid, eliminating for now...
-        // if (phoneIntl) {
-        //     singleAttachment.fields.unshift({
-        //         "title": "Want to talk to " + companyName + " ?",
-        //         "value": "<tel:" + phoneIntl + "|Call them now>",
-        //         "short": true
-        //     })
-        // };
+        if (phoneIntl) {
+            singleAttachment.fields.unshift({
+                "title": "Want to talk to " + companyName + " ?",
+                "value": "<tel:" + phoneIntl + "|Call them now>",
+                "short": true
+            })
+        };
         // push attachment into payload
         botPayload.attachments.push(singleAttachment);
     };
