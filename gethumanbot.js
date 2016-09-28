@@ -7,7 +7,7 @@ module.exports = function (req, res, next) {
   // some variable-scope confusion over the botPayLoad
   // for now, passing it from function to function
   var botPayload = {};
-  botPayload.username = 'Gethumanbot';
+  botPayload.username = 'Gethuman Bot';
   botPayload.channel = req.body.channel_id;
 
   var textInput = (req.body.text) ? req.body.text : '';
@@ -142,11 +142,12 @@ function prepareQuestionsPayload(questions, botPayload) {
         // this only gets the first in the series! Will likely need to iterate through the steps to harvest all the details
         // also has potential for funky-not-fresh formatting wrt HTML tags
         if (questions[i].guide.steps) {
-            console.log("Solutions for Question #" + i + ": " + questions[i].guide.steps);
+            console.log("Solutions for Question #" + i + ": " + JSON.stringify(questions[i].guide.steps));
         } else {
             console.log("No solutions found for Question #" + i);
         };
-        let solution = questions[i].guide.steps[0].details || 'No solution found. Despair and wail!';
+        // let solution = questions[i].guide.steps[0].details || 'No solution found. Despair and wail!';
+        let solution = "Step 1: Hit it with a hammer\nStep 2: Light it on fire\nStep 3: Order a pizza\nStep 4: Do a little dance."
 
         // create attachment object
         let singleAttachment = {
