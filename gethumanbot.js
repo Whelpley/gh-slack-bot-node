@@ -1,6 +1,7 @@
 'use strict'
 
-var request = require('request');
+const request = require('request');
+const phoneFormatter = require('phone-formatter');
 
 module.exports = function (req, res, next) {
   // some variable-scope confusion over the botPayLoad
