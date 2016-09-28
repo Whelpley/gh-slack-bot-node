@@ -195,7 +195,7 @@ function prepareQuestionsPayload(questions, botPayload) {
         return next(new Error('Incoming WebHook: ' + status + ' ' + body));
       } else {
         console.log("Payload sent on for much win.");
-        return res.status(200).end();
+        return response.status(200).end();
       }
     });
 };
