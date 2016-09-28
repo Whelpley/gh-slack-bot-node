@@ -11,7 +11,7 @@ module.exports = function (req, res, next) {
 
   var textInput = (req.body.text) ? req.body.text : '';
   if (textInput) {
-      summonQuestionResponse(textInput, botPayload);
+      botPayload = summonQuestionResponse(textInput, botPayload);
   } else {
       botPayload.text = "Tell me your customer service issue.";
       botPayload.icon_emoji = ':question:';
