@@ -61,7 +61,7 @@ function summonQuestionResponse(textInput, botPayload) {
     };
     let limit = 5;
     request('https://api.gethuman.co/v3/posts/search?match='
-            + encodeURIComponent(text)
+            + encodeURIComponent(textInput)
             + '&limit='
             + limit
             + '&filterBy='
