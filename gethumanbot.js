@@ -3,7 +3,7 @@
 var request = require('request');
 
 module.exports = function (req, res, next) {
-  var botPayload = {};
+  botPayload = {};
   botPayload.username = 'Gethumanbot';
   botPayload.channel = req.body.channel_id;
 
