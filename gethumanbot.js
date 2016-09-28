@@ -3,13 +3,15 @@
 var request = require('request');
 
 module.exports = function (req, res, next) {
-  botPayload = {};
+  // some variable-scope confusion over the botPayLoad
+  // for now, passing it from function to function
+  var botPayload = {};
   botPayload.username = 'Gethumanbot';
   botPayload.channel = req.body.channel_id;
 
   var textInput = (req.body.text) ? req.body.text : '';
   if (textInput) {
-      summonQuestionResponse(textInput);
+      summonQuestionResponse(textInput, botPayload);
   } else {
       botPayload.text = "Tell me your customer service issue.";
       botPayload.icon_emoji = ':question:';
@@ -44,7 +46,7 @@ function send (payload, callback) {
   });
 }
 
-function summonQuestionResponse(text) {
+function summonQuestionResponse(textInput, botPayload) {
     var questions = [];
     var companyIDs = [];
     var guideIDs = [];
@@ -99,7 +101,7 @@ function summonQuestionResponse(text) {
                                     let gID = questions[i].guideId;
                                     questions[i].guide = guideTable[gID];
                                 };
-                                prepareQuestionsPayload(questions);
+                                prepareQuestionsPayload(questions, botPayload);
                             } else if (error) {
                             console.log(error);
                           }
@@ -120,7 +122,7 @@ function summonQuestionResponse(text) {
     })
 };
 
-function prepareQuestionsPayload(questions) {
+function prepareQuestionsPayload(questions, botPayload) {
     botPayload.text = "Here are some issues potentially matching your input, and how to resolve them. Check them out!";
     botPayload.icon_emoji = ':tada:';
     botPayload.attachments = [];
@@ -176,4 +178,5 @@ function prepareQuestionsPayload(questions) {
         // push attachment into payload
         botPayload.attachments.push(singleAttachment);
     };
+    return botPayload;
 };
