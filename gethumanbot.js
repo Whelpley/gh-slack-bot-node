@@ -19,13 +19,17 @@ module.exports = function (req, res, next) {
   };
 
   // send payload
+  console.log("About to send the payload. Godspeed!");
   send(botPayload, function (error, status, body) {
     if (error) {
       return next(error);
     } else if (status !== 200) {
       // inform user that our Incoming WebHook failed
+      console.log("Oh the humanity! Payload has crashed and burned.");
+      console.log("Let's have a look at the payload: " + JSON.stringify(botPayload));
       return next(new Error('Incoming WebHook: ' + status + ' ' + body));
     } else {
+      console.log("Payload sent on for much win.");
       return res.status(200).end();
     }
   });
