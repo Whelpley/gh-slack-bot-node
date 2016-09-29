@@ -118,23 +118,41 @@ function summonQuestionResponse(textInput, botPayload, res) {
                   }
                 });
             } else {
-                // send back a plain text response for now
-                // later: potential company cards
-                botPayload.text = "We could not find any matching questions to your input.";
-                botPayload.icon_emoji = ':stuck_out_tongue:';
-                console.log("Received no results from Questions API");
-                send(botPayload, function (error, status, body) {
-                  if (error) {
-                    return next(error);
-                  } else if (status !== 200) {
-                    return next(new Error('Incoming WebHook: ' + status + ' ' + body));
-                  } else {
-                    return res.status(200).end();
-                  }
-                });
+                console.log("Received no results from Questions API for input: " + textInput);
+                summonCompanyResponse(textInput, botPayload, res);
             };
         } else if (error) {
             console.log(error);
+        }
+    })
+};
+
+function summonCompanyResponse(textInput, botPayload, res) {
+    var companies = [];
+
+    request('https://api.gethuman.co/v3/companies/search?limit=5&match=' + encodeURIComponent(textInput), function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            companies = JSON.parse(body);
+            // console.log("Full API response: " + body);
+            if (companies && companies.length) {
+                prepareCompaniesPayload(companies, botPayload, res);
+            } else {
+                // send back a plain text response, prompt for usable input
+                botPayload.text = "We could not find anything matching your input to our database. Could you try rephrasing your concern, and be sure to spell the company name correctly?";
+                botPayload.icon_emoji = ':stuck_out_tongue:';
+                console.log("Received no results from Companies API for input: " + textInput);
+                send(botPayload, function (error, status, body) {
+                    if (error) {
+                      return next(error);
+                    } else if (status !== 200) {
+                      return next(new Error('Incoming WebHook: ' + status + ' ' + body));
+                    } else {
+                      return res.status(200).end();
+                    }
+                });
+            };
+        } else if (error) {
+          console.log(error);
         }
     })
 };
@@ -172,7 +190,7 @@ function prepareQuestionsPayload(questions, botPayload, res) {
             "fallback": "Solution guide for " + companyName,
             "title": title,
             "color": color,
-            // redundant link to one in the Fields
+            // redundant link to one in the Fields - add this if removing the Field
             // "title_link": "https://answers.gethuman.co/_" + encodeURIComponent(urlId),
             "text": solution,
             "fields": [
@@ -200,18 +218,83 @@ function prepareQuestionsPayload(questions, botPayload, res) {
         botPayload.attachments.push(singleAttachment);
     };
     // send that payload!
-    console.log("About to send the payload. Godspeed!");
+    console.log("About to send the Questions payload. Godspeed!");
     send(botPayload, function (error, status, body) {
       if (error) {
         return next(error);
       } else if (status !== 200) {
         // inform user that our Incoming WebHook failed
-        console.log("Oh the humanity! Payload has crashed and burned.");
+        console.log("Oh the humanity! Questions payload has crashed and burned.");
         console.log("Let's have a look at the payload: " + JSON.stringify(botPayload));
         return next(new Error('Incoming WebHook: ' + status + ' ' + body));
       } else {
-        console.log("Payload sent on for much win.");
+        console.log("Questions payload sent on for much win.");
         return res.status(200).end();
       }
     });
 };
+
+function prepareCompaniesPayload(companies, botPayload, res) {
+    botPayload.text = "We could not find any specific questions matching your input, but here is the contact information for some companies that could help you resolve your issue:";
+    botPayload.icon_emoji = ':flashlight:';
+    botPayload.attachments = [];
+
+    // needs serious editing
+    for (let i=0; i < companies.length; i++) {
+        let name = companies[i].name || '';
+        let color = colors[i];
+        let phone = companies[i].callback.phone || '';
+        let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
+        let email = '';
+        // filter GH array to find contactInfo
+        let emailContactMethods = companies[i].contactMethods.filter(function ( method ) {
+            return method.type === "email";
+        });
+        if (emailContactMethods && emailContactMethods.length) {
+            // console.log("Email Object found: " + JSON.stringify(emailContactMethods));
+            email = emailContactMethods[0].target;
+        };
+        // console.log("Harvested an email: " + email);
+        let singleAttachment = {
+            "fallback": "Company info for " + name,
+            "title": name,
+            "color": color,
+            "text": email + "\n" + phone,
+            "fields": [
+                {
+                    "title": "Email " + name,
+                    "value": "<mailto:" + email + "|Click here to email>",
+                    "short": true
+                },
+                {
+                    "title": "Solve - $20",
+                    "value": "<https://gethuman.com?company=" + encodeURIComponent(name) + "|Summon GetHuman's Humans!>",
+                    "short": true
+                }
+            ]
+        };
+        if (phoneIntl) {
+            singleAttachment.fields.unshift({
+                "title": "Want to talk to " + companyName + " ?",
+                "value": "<tel:" + phoneIntl + "|Call them now>",
+                "short": true
+            })
+        };
+        botPayload.attachments.push(singleAttachment);
+    };
+    // payload ready, send it on!
+    console.log("About to send the Questions payload. Godspeed!");
+    send(botPayload, function (error, status, body) {
+      if (error) {
+        return next(error);
+      } else if (status !== 200) {
+        // inform user that our Incoming WebHook failed
+        console.log("Oh the humanity! Companies payload has crashed and burned.");
+        console.log("Let's have a look at the payload: " + JSON.stringify(botPayload));
+        return next(new Error('Incoming WebHook: ' + status + ' ' + body));
+      } else {
+        console.log("Companies payload sent on for much win.");
+        return res.status(200).end();
+      }
+    });
+}
