@@ -12,6 +12,7 @@ module.exports = function (req, res, next) {
   botPayload.username = 'Gethuman Bot';
   botPayload.channel = req.body.channel_id;
 
+  //handling text input
   var textInput = (req.body.text) ? req.body.text : '';
   if (textInput) {
       // passing in 'res' for debugging
@@ -213,6 +214,28 @@ function prepareQuestionsPayload(questions, botPayload, res) {
         };
         botPayload.attachments.push(singleAttachment);
     };
+    // attach buttons to receive feedback
+    botPayload.attachments.push({
+        "fallback": "Are you happy with these answers?",
+        "title": "Are you happy with these answers?",
+        "callback_id": "questions_feedback",
+        "color": "##ff0000",
+        "attachment_type": "default",
+        "actions": [
+            {
+                "name": "yes",
+                "text": "Yes",
+                "type": "button",
+                "value": "Yes"
+            },
+            {
+                "name": "no",
+                "text": "No",
+                "type": "button",
+                "value": "No"
+            }
+        ]
+    });
     // send that payload!
     console.log("About to send the Questions payload. Godspeed!");
     send(botPayload, function (error, status, body) {

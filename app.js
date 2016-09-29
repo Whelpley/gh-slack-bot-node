@@ -19,8 +19,11 @@ app.post('/hello', hellobot);
 // dicebot
 app.post('/roll', dicebot);
 
-// dicebot
+// gethuman bot
 app.post('/gethuman', getHumanbot);
+
+// button replies
+app.post('/message_action', getHumanbot);
 
 // basic error handler
 app.use(function (err, req, res, next) {
