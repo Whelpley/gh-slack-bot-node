@@ -122,6 +122,16 @@ function summonQuestionResponse(textInput, botPayload, res) {
                 // later: potential company cards
                 botPayload.text = "We could not find any matching questions to your input.";
                 botPayload.icon_emoji = ':stuck_out_tongue:';
+                console.log("Received no results from Questions API");
+                send(botPayload, function (error, status, body) {
+                  if (error) {
+                    return next(error);
+                  } else if (status !== 200) {
+                    return next(new Error('Incoming WebHook: ' + status + ' ' + body));
+                  } else {
+                    return res.status(200).end();
+                  }
+                });
             };
         } else if (error) {
             console.log(error);
