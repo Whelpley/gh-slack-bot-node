@@ -184,8 +184,6 @@ function prepareQuestionsPayload(questions, botPayload, res) {
         let solution = questions[i].guide.steps[0].details || 'No solution found. Despair and wail!';
         // dummy text for solutions:
         // let solution = "Step 1: Hit it with a hammer\nStep 2: Light it on fire\nStep 3: Order a pizza\nStep 4: Do a little dance."
-
-        // create attachment object
         let singleAttachment = {
             "fallback": "Solution guide for " + companyName,
             "title": title,
@@ -206,7 +204,6 @@ function prepareQuestionsPayload(questions, botPayload, res) {
                 }
             ]
         };
-        // if there is a valid phone # (needs stricter checks), add Call field to attachment
         if (phoneIntl) {
             singleAttachment.fields.unshift({
                 "title": "Want to talk to " + companyName + " ?",
@@ -214,7 +211,6 @@ function prepareQuestionsPayload(questions, botPayload, res) {
                 "short": true
             })
         };
-        // push attachment into payload
         botPayload.attachments.push(singleAttachment);
     };
     // send that payload!
@@ -244,7 +240,7 @@ function prepareCompaniesPayload(companies, botPayload, res) {
         let name = companies[i].name || '';
         let color = colors[i];
         let phone = companies[i].callback.phone || '';
-        let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
+        // let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
         let email = '';
         // filter GH array to find contactInfo
         let emailContactMethods = companies[i].contactMethods.filter(function ( method ) {
@@ -262,22 +258,25 @@ function prepareCompaniesPayload(companies, botPayload, res) {
             "text": email + "\n" + phone,
             "fields": [
                 {
-                    "title": "Email " + name,
-                    "value": "<mailto:" + email + "|Click here to email>",
-                    "short": true
-                },
-                {
                     "title": "Solve - $20",
                     "value": "<https://gethuman.com?company=" + encodeURIComponent(name) + "|Summon GetHuman's Humans!>",
                     "short": true
                 }
             ]
         };
-        if (phoneIntl) {
+        // No need for this - Slack auto-interprets phone!
+        // if (phoneIntl) {
+        //     singleAttachment.fields.unshift({
+        //         "title": "Want to talk to " + name + " ?",
+        //         "value": "<tel:" + phoneIntl + "|Call them now>",
+        //         "short": true
+        //     })
+        // };
+        if (email) {
             singleAttachment.fields.unshift({
-                "title": "Want to talk to " + name + " ?",
-                "value": "<tel:" + phoneIntl + "|Call them now>",
-                "short": true
+                    "title": "Email " + name,
+                    "value": "<mailto:" + email + "|Click here to email>",
+                    "short": true
             })
         };
         botPayload.attachments.push(singleAttachment);
