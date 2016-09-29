@@ -3,7 +3,7 @@
 const request = require('request');
 const phoneFormatter = require('phone-formatter');
 
-const colors = ['blue', 'green', 'yellow', 'purple', 'red'];
+const colors = ['#1c4fff', '#e84778', '#ffc229', '#1ae827', '#5389ff'];
 
 module.exports = function (req, res, next) {
   // some variable-scope confusion over the botPayLoad
