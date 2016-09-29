@@ -275,7 +275,7 @@ function prepareCompaniesPayload(companies, botPayload, res) {
         };
         if (phoneIntl) {
             singleAttachment.fields.unshift({
-                "title": "Want to talk to " + companyName + " ?",
+                "title": "Want to talk to " + name + " ?",
                 "value": "<tel:" + phoneIntl + "|Call them now>",
                 "short": true
             })
