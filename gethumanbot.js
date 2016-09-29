@@ -3,6 +3,8 @@
 const request = require('request');
 const phoneFormatter = require('phone-formatter');
 
+const colors = ['blue', 'green', 'yellow', 'purple', 'red'];
+
 module.exports = function (req, res, next) {
   // some variable-scope confusion over the botPayLoad
   // for now, passing it from function to function
@@ -134,6 +136,7 @@ function prepareQuestionsPayload(questions, botPayload, res) {
 
     for (let i = 0; i < questions.length; i++) {
         let companyName = questions[i].companyName || '';
+        let color = colors[i];
         let urlId = questions[i].urlId || '';
         let phone = (questions[i].company) ? questions[i].company.callback.phone : '';
         //format phone# for international format
@@ -158,6 +161,7 @@ function prepareQuestionsPayload(questions, botPayload, res) {
         let singleAttachment = {
             "fallback": "Solution guide for " + companyName,
             "title": title,
+            "color": color,
             // redundant link to one in the Fields
             // "title_link": "https://answers.gethuman.co/_" + encodeURIComponent(urlId),
             "text": solution,
