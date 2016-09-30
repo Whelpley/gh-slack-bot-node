@@ -175,14 +175,13 @@ function prepareQuestionsPayload(questions, botPayload, res) {
         if (title.indexOf(companyName) < 0) {
             title = companyName + ": " + title;
         };
-        // this only gets the first in the series! Will likely need to iterate through the steps to harvest all the details
-        // also has potential for funky-not-fresh formatting wrt HTML tags
+        // also has potential for funky-not-fresh formatting wrt HTML tags - how to strip?
         if (questions[i].guide.steps) {
             console.log("Solutions for Question #" + i + ": " + JSON.stringify(questions[i].guide.steps));
         } else {
             console.log("No solutions found for Question #" + i);
         };
-        let solution = questions[i].guide.steps[0].details || 'No solution found. Despair and wail!';
+        let solution = questions[i].guide.steps[0].details || 'No solution found for this issue.';
         // dummy text for solutions:
         // let solution = "Step 1: Hit it with a hammer\nStep 2: Light it on fire\nStep 3: Order a pizza\nStep 4: Do a little dance."
         let singleAttachment = {
@@ -194,21 +193,26 @@ function prepareQuestionsPayload(questions, botPayload, res) {
             "text": solution,
             "fields": [
                 {
+                    "title": "*****************************************",
+                    "value": "-----------------------------------------",
+                    "short": false
+                },
+                {
                     "title": "More info",
-                    "value": "<https://answers.gethuman.co/_" + encodeURIComponent(urlId) + "|Detailed solutions guide>",
+                    "value": "<https://answers.gethuman.co/_" + encodeURIComponent(urlId) + "|See full guide>",
                     "short": true
                 },
                 {
-                    "title": "Solve - $20",
-                    "value": "<https://gethuman.com?company=" + encodeURIComponent(companyName) + "|Summon GetHuman's Humans!>",
+                    "title": "Let us do it for you",
+                    "value": "<https://gethuman.com?company=" + encodeURIComponent(companyName) + "|Hire GetHuman to Solve - $20>",
                     "short": true
                 }
             ]
         };
         if (phoneIntl) {
-            singleAttachment.fields.unshift({
-                "title": "Want to talk to " + companyName + " ?",
-                "value": "<tel:" + phoneIntl + "|Call them now>",
+            singleAttachment.fields.push({
+                "title": "Talk with " + companyName,
+                "value": "<tel:" + phoneIntl + "|Call" + companyName + ">",
                 "short": true
             })
         };

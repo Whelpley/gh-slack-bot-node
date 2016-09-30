@@ -3,6 +3,8 @@ var bodyParser = require('body-parser');
 var hellobot = require('./hellobot.js');
 var dicebot = require('./dicebot.js');
 var getHumanbot = require('./gethumanbot.js');
+var messageActionBot = require('./message-action-bot.js');
+
 
 var app = express();
 var port = process.env.PORT || 3000;
@@ -18,9 +20,6 @@ app.post('/hello', hellobot);
 
 // dicebot
 app.post('/roll', dicebot);
-
-// gethuman bot
-app.post('/gethuman', getHumanbot);
 
 // button replies
 app.post('/message_action', getHumanbot);
