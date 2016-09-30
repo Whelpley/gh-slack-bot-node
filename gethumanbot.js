@@ -194,17 +194,17 @@ function prepareQuestionsPayload(questions, botPayload, res) {
             "fields": [
                 {
                     // "title": "*****************************************",
-                    "value": "-----------------------------------------",
+                    "value": "------------------------------------------------------",
                     "short": false
                 },
                 {
                     // "title": "More info",
-                    "value": "<https://answers.gethuman.co/_" + encodeURIComponent(urlId) + "|See full guide>",
+                    "value": "<https://answers.gethuman.co/_" + encodeURIComponent(urlId) + "|Full guide>",
                     "short": true
                 },
                 {
                     // "title": "Let us do it for you",
-                    "value": "<https://gethuman.com?company=" + encodeURIComponent(companyName) + "|Hire GetHuman to Solve - $20>",
+                    "value": "<https://gethuman.com?company=" + encodeURIComponent(companyName) + "|GetHuman>",
                     "short": true
                 }
             ]
