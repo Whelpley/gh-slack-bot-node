@@ -3,8 +3,6 @@ var bodyParser = require('body-parser');
 var hellobot = require('./hellobot.js');
 var dicebot = require('./dicebot.js');
 var getHumanbot = require('./gethumanbot.js');
-var messageActionBot = require('./message-action-bot.js');
-
 
 var app = express();
 var port = process.env.PORT || 3000;
