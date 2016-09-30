@@ -182,6 +182,8 @@ function prepareQuestionsPayload(questions, botPayload, res) {
             console.log("No solutions found for Question #" + i);
         };
         let solution = questions[i].guide.steps[0].details || 'No solution found for this issue.';
+        // insert newline characters so it will collapse early in results
+        solution = insertLineBreaks(solution);
         // dummy text for solutions:
         // let solution = "Step 1: Hit it with a hammer\nStep 2: Light it on fire\nStep 3: Order a pizza\nStep 4: Do a little dance."
         let singleAttachment = {
@@ -219,6 +221,7 @@ function prepareQuestionsPayload(questions, botPayload, res) {
         botPayload.attachments.push(singleAttachment);
     };
     // attach buttons to receive feedback
+    // not currently functional, until Bot status acheived
     botPayload.attachments.push({
         "fallback": "Are you happy with these answers?",
         "title": "Are you happy with these answers?",
@@ -262,11 +265,11 @@ function prepareCompaniesPayload(companies, botPayload, res) {
     botPayload.icon_emoji = ':flashlight:';
     botPayload.attachments = [];
 
-    // needs serious editing
     for (let i=0; i < companies.length; i++) {
         let name = companies[i].name || '';
         let color = colors[i];
         let phone = companies[i].callback.phone || '';
+        // not needed! Slack will auto-detect phone number!
         // let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
         let email = '';
         // filter GH array to find contactInfo
@@ -274,10 +277,8 @@ function prepareCompaniesPayload(companies, botPayload, res) {
             return method.type === "email";
         });
         if (emailContactMethods && emailContactMethods.length) {
-            // console.log("Email Object found: " + JSON.stringify(emailContactMethods));
             email = emailContactMethods[0].target;
         };
-        // console.log("Harvested an email: " + email);
         let singleAttachment = {
             "fallback": "Company info for " + name,
             "title": name,
@@ -323,4 +324,15 @@ function prepareCompaniesPayload(companies, botPayload, res) {
         return res.status(200).end();
       }
     });
+}
+
+// inserts new lines to a string
+// for the text fields of attachments, so they collapse earlier
+// drawback - will cut off string at arbitrary point, when expanded will still be cut
+function insertLineBreaks(string, cutoff) {
+  if (string.length > cutoff) {
+    let breaks = "\n\n\n\n\n";
+    string = string.substring(0,cutoff) + breaks + string.substring(cutoff);
+  };
+  return string;
 }
