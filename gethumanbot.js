@@ -162,8 +162,8 @@ function prepareQuestionsPayload(questions, botPayload, res) {
     botPayload.attachments = [];
 
     for (let i = 0; i < questions.length; i++) {
-        console.log("Question # " + i + ": " + JSON.stringify(questions[i]));
-        let name = questions[i].name || '';
+        // console.log("Question # " + i + ": " + JSON.stringify(questions[i]));
+        let name = questions[i].companyName || '';
         console.log("Company name found: " + name);
         let color = colors[i];
         let urlId = questions[i].urlId || '';
