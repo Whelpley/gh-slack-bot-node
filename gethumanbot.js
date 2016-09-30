@@ -6,8 +6,6 @@ const phoneFormatter = require('phone-formatter');
 const colors = ['#1c4fff', '#e84778', '#ffc229', '#1ae827', '#5389ff'];
 
 module.exports = function (req, res, next) {
-  // some variable-scope confusion over the botPayLoad
-  // for now, passing it from function to function
   var botPayload = {};
   botPayload.username = 'Gethuman Bot';
   botPayload.channel = req.body.channel_id;
@@ -23,16 +21,16 @@ module.exports = function (req, res, next) {
       // send payload
       console.log("About to send the payload. Godspeed!");
       send(botPayload, function (error, status, body) {
-      if (error) {
-        return next(error);
-      } else if (status !== 200) {
-        // inform user that our Incoming WebHook failed
-        console.log("Oh the humanity! Payload has crashed and burned.");
-        console.log("Let's have a look at the payload: " + JSON.stringify(botPayload));
-        return next(new Error('Incoming WebHook: ' + status + ' ' + body));
-      } else {
-        console.log("Payload sent on for much win.");
-        return res.status(200).end();
+        if (error) {
+          return next(error);
+        } else if (status !== 200) {
+          // inform user that our Incoming WebHook failed
+          console.log("Oh the humanity! Payload has crashed and burned.");
+          console.log("Let's have a look at the payload: " + JSON.stringify(botPayload));
+          return next(new Error('Incoming WebHook: ' + status + ' ' + body));
+        } else {
+          console.log("Payload sent on for much win.");
+          return res.status(200).end();
       }
       });
   };
@@ -224,7 +222,7 @@ function prepareQuestionsPayload(questions, botPayload, res) {
         "fallback": "Are you happy with these answers?",
         "title": "Are you happy with these answers?",
         "callback_id": "questions_feedback",
-        "color": "##ff0000",
+        "color": "#ff0000",
         "attachment_type": "default",
         "actions": [
             {
@@ -241,6 +239,7 @@ function prepareQuestionsPayload(questions, botPayload, res) {
             }
         ]
     });
+
     console.log("About to send the Questions payload. Godspeed!");
     send(botPayload, function (error, status, body) {
       if (error) {
@@ -326,6 +325,7 @@ function prepareCompaniesPayload(companies, botPayload, res) {
 // inserts new lines to a string
 // for the text fields of attachments, so they collapse earlier
 // drawback - will cut off string at arbitrary point, when expanded will still be cut
+// also does not seem to work consistently!
 // function insertLineBreaks(string, cutoff) {
 //   if (string.length > cutoff) {
 //     let breaks = "\n\n\n\n\n";
