@@ -199,12 +199,12 @@ function prepareQuestionsPayload(questions, botPayload, res) {
                 },
                 {
                     // "title": "More info",
-                    "value": "<https://answers.gethuman.co/_" + encodeURIComponent(urlId) + "|Full guide>",
+                    "value": "<https://answers.gethuman.co/_" + encodeURIComponent(urlId) + "|See full guide>",
                     "short": true
                 },
                 {
                     // "title": "Let us do it for you",
-                    "value": "<https://gethuman.com?company=" + encodeURIComponent(companyName) + "|GetHuman>",
+                    "value": "<https://gethuman.com?company=" + encodeURIComponent(companyName) + "|Hire GetHuman to Solve - $20>",
                     "short": true
                 }
             ]
@@ -212,7 +212,7 @@ function prepareQuestionsPayload(questions, botPayload, res) {
         if (phoneIntl) {
             singleAttachment.fields.push({
                 // "title": "Talk with " + companyName,
-                "value": "<tel:" + phoneIntl + "|Call" + companyName + ">",
+                "value": "<tel:" + phoneIntl + "|Call " + companyName + ">",
                 "short": true
             })
         };
