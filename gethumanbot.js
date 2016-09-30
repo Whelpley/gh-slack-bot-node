@@ -182,10 +182,8 @@ function prepareQuestionsPayload(questions, botPayload, res) {
             console.log("No solutions found for Question #" + i);
         };
         let solution = questions[i].guide.steps[0].details || 'No solution found for this issue.';
-        // insert newline characters so it will collapse early in results
-        solution = insertLineBreaks(solution);
-        // dummy text for solutions:
-        // let solution = "Step 1: Hit it with a hammer\nStep 2: Light it on fire\nStep 3: Order a pizza\nStep 4: Do a little dance."
+        // experimental solution to strip Html
+        solution = stripHtml(solution);
         let singleAttachment = {
             "fallback": "Solution guide for " + companyName,
             "title": title,
@@ -243,7 +241,6 @@ function prepareQuestionsPayload(questions, botPayload, res) {
             }
         ]
     });
-    // send that payload!
     console.log("About to send the Questions payload. Godspeed!");
     send(botPayload, function (error, status, body) {
       if (error) {
@@ -329,10 +326,20 @@ function prepareCompaniesPayload(companies, botPayload, res) {
 // inserts new lines to a string
 // for the text fields of attachments, so they collapse earlier
 // drawback - will cut off string at arbitrary point, when expanded will still be cut
-function insertLineBreaks(string, cutoff) {
-  if (string.length > cutoff) {
-    let breaks = "\n\n\n\n\n";
-    string = string.substring(0,cutoff) + breaks + string.substring(cutoff);
-  };
-  return string;
+// function insertLineBreaks(string, cutoff) {
+//   if (string.length > cutoff) {
+//     let breaks = "\n\n\n\n\n";
+//     string = string.substring(0,cutoff) + breaks + string.substring(cutoff);
+//   };
+//   return string;
+// }
+
+// WARNING - from Stack Overflow
+// string of regex's to remove tags
+function stripHtml(string) {
+    return string.replace(/<\s*br\/*>/gi, "\n")
+      .replace(/<\s*a.*href="(.*?)".*>(.*?)<\/a>/gi, " $2 (Link->$1) ")
+      .replace(/<\s*\/*.+?>/ig, "\n")
+      .replace(/ {2,}/gi, " ")
+      .replace(/\n+\s*/gi, "\n\n");
 }
