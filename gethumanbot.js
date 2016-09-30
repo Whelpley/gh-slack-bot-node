@@ -163,6 +163,7 @@ function prepareQuestionsPayload(questions, botPayload, res) {
 
     for (let i = 0; i < questions.length; i++) {
         let name = questions[i].name || '';
+        console.log("Company name found: " + name);
         let color = colors[i];
         let urlId = questions[i].urlId || '';
         let phone = (questions[i].company) ? questions[i].company.callback.phone : '';
@@ -263,6 +264,7 @@ function prepareCompaniesPayload(companies, botPayload, res) {
 
     for (let i=0; i < companies.length; i++) {
         let name = companies[i].name || '';
+        console.log("Company name found: " + name);
         let color = colors[i];
         let phone = companies[i].callback.phone || '';
         // not needed! Slack will auto-detect phone number!
