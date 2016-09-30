@@ -162,7 +162,7 @@ function prepareQuestionsPayload(questions, botPayload, res) {
     botPayload.attachments = [];
 
     for (let i = 0; i < questions.length; i++) {
-        let companyName = questions[i].companyName || '';
+        let name = questions[i].name || '';
         let color = colors[i];
         let urlId = questions[i].urlId || '';
         let phone = (questions[i].company) ? questions[i].company.callback.phone : '';
@@ -170,8 +170,8 @@ function prepareQuestionsPayload(questions, botPayload, res) {
         let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
         let title = questions[i].title || '';
         // check if company name is in title already, add to front if not
-        if (title.indexOf(companyName) < 0) {
-            title = companyName + ": " + title;
+        if (title.indexOf(name) < 0) {
+            title = name + ": " + title;
         };
         // also has potential for funky-not-fresh formatting wrt HTML tags - how to strip?
         if (questions[i].guide.steps) {
@@ -183,7 +183,7 @@ function prepareQuestionsPayload(questions, botPayload, res) {
         // experimental solution to strip Html
         solution = stripHtml(solution);
         let singleAttachment = {
-            "fallback": "Solution guide for " + companyName,
+            "fallback": "Solution guide for " + name,
             "title": title,
             "color": color,
             // redundant link to one in the Fields - add this if removing the Field
@@ -202,15 +202,15 @@ function prepareQuestionsPayload(questions, botPayload, res) {
                 },
                 {
                     // "title": "Let us do it for you",
-                    "value": "<https://gethuman.com?company=" + encodeURIComponent(companyName) + "|Hire GetHuman to Solve - $20>",
+                    "value": "<https://gethuman.com?company=" + encodeURIComponent(name) + "|Hire GetHuman to Solve - $20>",
                     "short": true
                 }
             ]
         };
         if (phoneIntl) {
             singleAttachment.fields.push({
-                // "title": "Talk with " + companyName,
-                "value": "<tel:" + phoneIntl + "|Call " + companyName + ">",
+                // "title": "Talk with " + name,
+                "value": "<tel:" + phoneIntl + "|Call " + name + ">",
                 "short": true
             })
         };
@@ -282,8 +282,8 @@ function prepareCompaniesPayload(companies, botPayload, res) {
             "text": email + "\n" + phone,
             "fields": [
                 {
-                    "title": "Solve - $20",
-                    "value": "<https://gethuman.com?company=" + encodeURIComponent(name) + "|Summon GetHuman's Humans!>",
+                    // "title": "Solve - $20",
+                    "value": "<https://gethuman.com?company=" + encodeURIComponent(name) + "|Hire GetHuman to Solve - $20>",
                     "short": true
                 }
             ]
@@ -298,8 +298,8 @@ function prepareCompaniesPayload(companies, botPayload, res) {
         // };
         if (email) {
             singleAttachment.fields.unshift({
-                    "title": "Email " + name,
-                    "value": "<mailto:" + email + "|Click here to email>",
+                    // "title": "Email " + name,
+                    "value": "<mailto:" + email + "|Email " + name + ">",
                     "short": true
             })
         };
